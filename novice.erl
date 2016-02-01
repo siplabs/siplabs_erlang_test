@@ -3,7 +3,7 @@
 -import(lists, [map/2, seq/2, seq/3, foldl/3]).
 
 start(_Mode, Nodes) when is_list(Nodes)->
-    Pids = map(fun (Node)-> spawn(Node, fun()-> loop() end) end, Nodes),
+    Pids = map(fun (Node)-> spawn_link(Node, fun()-> loop() end) end, Nodes),
     put(nodes, Pids),
     {ok, self()}.
 
@@ -60,7 +60,7 @@ calc(N)->
 distribute(_N, _X, _Cores, Pid, 0)  -> Pid;
 distribute(N,X,Cores,Pid1, Counter) -> 
     Pid2 = distribute(N, X+1, Cores, Pid1, Counter-1),
-    spawn(fun()-> mul_decimated_seq(X,N,Cores,Pid2) end).
+    spawn_link(fun()-> mul_decimated_seq(X,N,Cores,Pid2) end).
     
 %% Порождает прореженный количеством ядер натуральный ряд, перемножает его члены,
 %% домножает его на присланный множитель и возвращает результат по указанному Pid
