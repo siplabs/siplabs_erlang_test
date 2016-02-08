@@ -30,8 +30,7 @@
 start(_Mode, Args) ->
     start_link(Args).
 
-start_link(Args) ->
-    rpc:eval_everywhere(Args, gen_server, start_link, [{local, ?SERVER}, ?MODULE, [], []]),
+start_link(Args) ->    
     gen_server:start_link({local, ?SERVER}, ?MODULE, Args, []).
 
 product(Min, Max, Step, Receivers_pid)->
@@ -49,7 +48,10 @@ calc(N) when is_integer(N) ->
     Total_cores = length(Nodes_cores),
     {First_pid, _} = foldl(
 		       fun (Nodes_core, {Receivers_pid, Num})->
-			       Next_pid = rpc:call(Nodes_core, novice, product, [Num, N, Total_cores, Receivers_pid]),
+			       Next_pid = case rpc:call(Nodes_core, novice, product, [Num, N, Total_cores, Receivers_pid]) of
+					      {badrpc, Reason} -> erlang:error(Reason);
+					      Pid -> Pid
+					      end,
 			       {Next_pid, Num+1}
 		       end, {self(), 1}, Nodes_cores),
     First_pid ! 1,    
@@ -59,7 +61,9 @@ calc(N) when is_integer(N) ->
 %%% gen_server callbacks
 %%%===================================================================
 
-init(_Nodes) -> {ok, normal}.
+init(Nodes) -> 
+    rpc:eval_everywhere(Nodes, gen_server, start_link, [{local, ?SERVER}, ?MODULE, [], []]),
+    {ok, normal}.
 
 
 handle_call({product, Min, Max, Step, Receivers_pid}, _From, State) ->

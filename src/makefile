@@ -6,7 +6,7 @@
 .yrl.erl:
 	erlc -W $<
 
-MODS = novice
+MODS = novice novice_app novice_sup
 all: compile move
 
 compile: ${MODS:%=%.beam}

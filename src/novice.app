@@ -1,6 +1,6 @@
 {application, novice,
  [
-  {modules,[novice]},
+  {modules,[novice_app]},
   {vsn, "1.1"},
-  {mod, {novice, ['node3@ne','node2@ne']}}
+  {mod, {novice_app, ['node3@ne','node2@ne']}}
  ]}.
