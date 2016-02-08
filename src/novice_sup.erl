@@ -61,7 +61,7 @@ init(Args) ->
 	       type => worker,
 	       modules => ['novice']},
 
-    {ok, {SupFlags, [AChild]}};
+    {ok, {SupFlags, [AChild]}}.
 
 
 %%%===================================================================
